@@ -39,3 +39,5 @@ urllib.request.urlretrieve(url, "grand-lineage-summary.xls")
 #with open("grand-lineage-summary.xls", "w") as code:
 #    code.write(text)
     
+
+#ncbi_page = 'https://www.ncbi.nlm.nih.gov/nuccore/' + df[['NCBI Code']].sample(1)
