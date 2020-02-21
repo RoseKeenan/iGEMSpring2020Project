@@ -62,55 +62,61 @@ df = df[['NCBI Code', 'MalAvi Code', 'Avian Orden', 'Avian Family', 'Avian Genus
          'Vector Family', 'Vector Genus', 'Vector Species', 'Parasite Genus', 'Parasite Subgenus', 'Parasite Species', 'Continent' , 'Country' , 'Locality' , 'Year' , 
          'Reference', 'Sequence']]
 
-df.set_index('NCBI Code')
 
-# Grabs accession codes from dataframe
-codes = df[['NCBI Code']]
+df = df.drop_duplicates(subset='NCBI Code')
+
+# Sets index to NCBI code
+df.set_index('NCBI Code', inplace=True, drop=True, verify_integrity=True)
+
 
 # Converts to list
-code_list = df['NCBI Code'].tolist()
+code_list = df.index.tolist()
 code_list = map(str, code_list)
 code_list = list(map(str, code_list))
 
 # Removing invalid codes
 for value in code_list:
-    if len(value)!= 8:
-        code_list.remove(value)
-    if value == ' ':
-        code_list.remove(value)
+    value = value.split()
     if '\xa0' in value:
-        value.replace('\xa0', '')
-    if value.upper() == 'NOT SUB':
-        code_list.remove(value)
+        value = value.replace('\xa0', '')
+
+code_list = [value for value in code_list if len(value) == 8]
 
 # Test list
 my_list = ['JX418179','JX418219','MK061667','EF380150','KP347699','DQ659573','KP406597','KU562769']
-print(my_list[0])
 
 # Parsing through records
-fetchhandle = Entrez.efetch(db="nucleotide", id=my_list[0], rettype="gb")
+fetchhandle = Entrez.efetch(db="nucleotide", id=code_list[0], rettype="gb")
 records = list(SeqIO.parse(fetchhandle, "genbank"))
-print(records[0])
+print(records)
 print("\n")
 
-print(records[0].description)
-print("\n")
+for count in records:
+    print(count)
+    print('\n')
 
-annotations = records[0].annotations
-print(annotations)
-print("\n")
-print(annotations['source'])
-print("\n")
+    print(count.description)
+    print("\n")
 
-sequence = records[0].seq
-print(sequence)
+    annotations = count.annotations
+    print(annotations)
+    print("\n")
+    print(annotations['source'])
+    print("\n")
+
+    sequence = count.seq
+    print('sequence: ' + sequence)
+    print("\n")
+
+    source = annotations['source']
+    print("source: " + source)
+
+    # Inserting a value into dataframe
+    name = count.name
+    print("name: " + name)
+    df.loc[name, 'Sequence'] = sequence
 
 fetchhandle.close()
 
-# Inserting a value into dataframe
-name = records[0].name
-df.at[name, 'Sequence'] = 'test'
-
-
 # convert to csv
-df.to_csv('grand-lineage-summary.csv', sep = '\t', encoding = 'utf-8', index = False)
+df.to_csv('grand-lineage-summary.csv', sep = '\t', encoding = 'utf-8', index = True)
