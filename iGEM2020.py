@@ -14,9 +14,23 @@ from Bio import Entrez
 from Bio.Seq import Seq
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
+#import sqlite3
+#from sqlite import Error
 # End of imports
 
+#def create_connection(db_file):
+#    conn = none
+#    try:
+#        conn = sqlite3.connect(db_file)
+#        print(sqlite3.version)
+#    except Error as e:
+#        print(e)
+#    finally: 
+#        if conn:
+#            conn.close()
 
+#if __name__ == '__main__':
+#    create_connection('ourDB.db')
 
 # Entrez email
 Entrez.email = "rose.keenan@temple.edu"
@@ -35,6 +49,8 @@ link_items = link_text.find('a')
 suf = link_items.get('href')
 suf = suf[2:]
 url = 'http://130.235.244.92'  + suf
+
+print(url)
 
 # downloading using urllib
 urllib.request.urlretrieve(url, 'grand-lineage-summary.csv')
@@ -64,6 +80,14 @@ df = df[['NCBI Code', 'MalAvi Code', 'Avian Orden', 'Avian Family', 'Avian Genus
 
 
 df = df.drop_duplicates(subset='NCBI Code')
+
+#index = df['NCBI Code']
+
+#array = index.duplicated()
+
+#for ind in array:
+#    if True:
+#        print(ind)
 
 # Sets index to NCBI code
 df.set_index('NCBI Code', inplace=True, drop=True, verify_integrity=True)
